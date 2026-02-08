@@ -23,7 +23,14 @@ class Config:
         self.openrouter_base_url = 'https://openrouter.ai/api/v1'
         
         # Model Configuration
-        self.model_name = os.getenv('MODEL_NAME', 'gpt-4-turbo-preview')
+        # Model Configuration
+        self.model_name = os.getenv('MODEL_NAME', 'google/gemini-2.0-flash-exp:free')
+        
+        # Force switch if using known problematic models
+        if 'stepfun' in self.model_name or 'phi-3' in self.model_name:
+            print(f"[Config] Detected problematic model '{self.model_name}'. Auto-switching to Gemini 2.0 Flash.")
+            self.model_name = 'google/gemini-2.0-flash-exp:free'
+            
         self.max_tokens = int(os.getenv('MAX_TOKENS', '4096'))
         self.temperature = float(os.getenv('TEMPERATURE', '0.7'))
         

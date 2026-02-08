@@ -91,11 +91,30 @@ Remember to respond with a valid JSON object containing: summary, key_decisions,
             return result
             
         except Exception as e:
-            print(f"[Summary Agent] ERROR: {str(e)}")
+            error_msg = str(e)
+            print(f"[Summary Agent] ERROR: {error_msg}")
+            
+            # Check for Rate Limit Error or 404
+            if "429" in error_msg or "Rate limit" in error_msg:
+                return {
+                    "summary": "⚠️ System Error: API Rate Limit Exceeded. Please switch models.",
+                    "key_decisions": [],
+                    "constraints": ["API Quota Reached"],
+                    "intent": "Error: Rate Limit"
+                }
+            
+            if "404" in error_msg:
+                return {
+                    "summary": "⚠️ System Error: Model Not Found (404). The selected model is unavailable.",
+                    "key_decisions": [],
+                    "constraints": ["Model Unavailable"],
+                    "intent": "Error: Model 404"
+                }
+
             import traceback
             traceback.print_exc()
             return {
-                "summary": f"Error processing document: {str(e)}",
+                "summary": f"Error processing document: {error_msg}",
                 "key_decisions": [],
                 "constraints": [],
                 "intent": "Error occurred"
